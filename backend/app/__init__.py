@@ -16,7 +16,14 @@ celery = Celery()
 
 
 def create_app(config_name="development"):
-    app = Flask(__name__, template_folder="../../templates")
+    is_prod = os.environ.get("FLASK_ENV") == "production" or config_name == "production"
+    if is_prod:
+        app = Flask(__name__,
+                    static_folder="../../frontend/dist",
+                    static_url_path="/")
+    else:
+        app = Flask(__name__, template_folder="../../templates")
+        
     app.config.from_object(f"app.config.{config_name.capitalize()}Config")
 
     CORS(app, resources={r"/api/*": {"origins": "*"}})

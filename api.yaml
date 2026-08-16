@@ -1,0 +1,417 @@
+openapi: 3.0.3
+info:
+  title: Jatayu — Trekking Management Application API
+  description: REST API for Jatayu TMA V2 (IIT Madras MAD-II Project)
+  version: 2.0.0
+
+servers:
+  - url: http://localhost:5000/api
+    description: Local development server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        full_name: { type: string }
+        email: { type: string }
+        role: { type: string, enum: [admin, staff, trekker] }
+        status: { type: string, enum: [active, blacklisted] }
+        contact_number: { type: string }
+        experience_level: { type: string }
+        blood_group: { type: string }
+
+    Trek:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        location: { type: string }
+        difficulty: { type: string, enum: [Easy, Moderate, Hard] }
+        duration_days: { type: integer }
+        total_slots: { type: integer }
+        available_slots: { type: integer }
+        start_date: { type: string, format: date }
+        end_date: { type: string, format: date }
+        status: { type: string, enum: [Pending, Approved, Open, Closed, Completed] }
+        category: { type: string }
+        state: { type: string }
+        max_altitude_m: { type: integer }
+        permit_required: { type: boolean }
+        price_inr: { type: number }
+        avg_rating: { type: number }
+
+    Booking:
+      type: object
+      properties:
+        id: { type: integer }
+        user_id: { type: integer }
+        trek_id: { type: integer }
+        status: { type: string, enum: [Booked, Cancelled, Completed] }
+        payment_status: { type: string, enum: [Pending, Paid, Refunded] }
+        amount_paid: { type: number }
+        booking_date: { type: string, format: date-time }
+
+paths:
+
+  # ── Auth ──────────────────────────────────────────────────────────
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new trekker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [full_name, email, password]
+              properties:
+                full_name: { type: string }
+                email: { type: string }
+                password: { type: string }
+                contact_number: { type: string }
+      responses:
+        '201': { description: Registered successfully }
+        '409': { description: Email already exists }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login and get JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token: { type: string }
+                  role: { type: string }
+        '401': { description: Invalid credentials }
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current user profile
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200': { description: User profile }
+
+  # ── Public Treks ──────────────────────────────────────────────────
+  /treks/:
+    get:
+      tags: [Public]
+      summary: List all open treks
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+          description: Search by name or location
+        - name: difficulty
+          in: query
+          schema: { type: string, enum: [Easy, Moderate, Hard] }
+        - name: category
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { description: List of treks }
+
+  /treks/{id}:
+    get:
+      tags: [Public]
+      summary: Get full trek detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Trek detail with restaurants, agencies, local food }
+        '404': { description: Trek not found }
+
+  # ── Admin ─────────────────────────────────────────────────────────
+  /admin/dashboard:
+    get:
+      tags: [Admin]
+      summary: Admin dashboard stats and analytics
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200': { description: Stats, recent bookings, charts data }
+
+  /admin/treks:
+    get:
+      tags: [Admin]
+      summary: List all treks with pagination
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200': { description: Paginated trek list }
+    post:
+      tags: [Admin]
+      summary: Create a new trek
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Trek' }
+      responses:
+        '201': { description: Trek created }
+
+  /admin/treks/{id}:
+    put:
+      tags: [Admin]
+      summary: Update a trek
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Trek updated }
+    delete:
+      tags: [Admin]
+      summary: Delete a trek
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Trek deleted }
+
+  /admin/staff:
+    get:
+      tags: [Admin]
+      summary: List all staff members
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200': { description: Staff list }
+    post:
+      tags: [Admin]
+      summary: Create a new staff account
+      security: [{ BearerAuth: [] }]
+      responses:
+        '201': { description: Staff created }
+
+  /admin/staff/{id}/blacklist:
+    post:
+      tags: [Admin]
+      summary: Blacklist a staff member
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Staff blacklisted }
+
+  /admin/staff/{id}/whitelist:
+    post:
+      tags: [Admin]
+      summary: Reinstate a blacklisted staff member
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Staff reinstated }
+
+  /admin/users:
+    get:
+      tags: [Admin]
+      summary: List all trekkers
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200': { description: Trekker list }
+
+  /admin/users/{id}/blacklist:
+    post:
+      tags: [Admin]
+      summary: Blacklist a trekker
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: User blacklisted }
+
+  /admin/bookings:
+    get:
+      tags: [Admin]
+      summary: View all bookings
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200': { description: Paginated bookings list }
+
+  /admin/trigger-daily-reminders:
+    post:
+      tags: [Admin]
+      summary: Manually trigger daily reminder Celery job
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200': { description: Job queued }
+
+  /admin/trigger-monthly-report:
+    post:
+      tags: [Admin]
+      summary: Manually trigger monthly report Celery job
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200': { description: Job queued }
+
+  # ── Staff ─────────────────────────────────────────────────────────
+  /staff/dashboard:
+    get:
+      tags: [Staff]
+      summary: Staff dashboard summary
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200': { description: Assigned treks summary }
+
+  /staff/treks:
+    get:
+      tags: [Staff]
+      summary: Get treks assigned to this staff member
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200': { description: List of assigned treks }
+
+  /staff/treks/{id}/status:
+    put:
+      tags: [Staff]
+      summary: Update trek status
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string, enum: [Open, Closed, Completed] }
+      responses:
+        '200': { description: Status updated }
+
+  /staff/treks/{id}/participants:
+    get:
+      tags: [Staff]
+      summary: Get participants list for a trek
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: List of booked trekkers }
+
+  # ── User (Trekker) ────────────────────────────────────────────────
+  /user/dashboard:
+    get:
+      tags: [User]
+      summary: Trekker dashboard with active bookings
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200': { description: Dashboard data }
+
+  /user/book/{trek_id}:
+    post:
+      tags: [User]
+      summary: Book a trek
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: trek_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '201': { description: Booking confirmed }
+        '400': { description: No slots or already booked }
+
+  /user/cancel/{booking_id}:
+    post:
+      tags: [User]
+      summary: Cancel a booking
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Booking cancelled }
+
+  /user/history:
+    get:
+      tags: [User]
+      summary: Get full booking history
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200': { description: List of all bookings }
+
+  /user/export-history:
+    post:
+      tags: [User]
+      summary: Trigger CSV export of booking history (background job)
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200': { description: Export queued, email will be sent }
+
+  /user/profile:
+    get:
+      tags: [User]
+      summary: Get trekker profile
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200': { description: Profile data }
+    put:
+      tags: [User]
+      summary: Update trekker profile
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200': { description: Profile updated }
+
+  # ── Partners ──────────────────────────────────────────────────────
+  /restaurants/register:
+    post:
+      tags: [Partners]
+      summary: Restaurant self-registration
+      responses:
+        '201': { description: Registration submitted, pending approval }
+
+  /agencies/register:
+    post:
+      tags: [Partners]
+      summary: Travel agency self-registration
+      responses:
+        '201': { description: Registration submitted, pending approval }

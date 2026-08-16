@@ -1,0 +1,1 @@
+"              <option value=\"Clear\">Clear / Dry</option>\n              <option value=\"Snowy\">Snowy / Icy</option>\n              <option value=\"Muddy\">Muddy / Slushy</option>\n              <option value=\"Rocky\">Rocky / Rough</option>\n              <option value=\"Overgrown\">Overgrown / Wild</option>"

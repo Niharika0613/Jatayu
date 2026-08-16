@@ -1,0 +1,19 @@
+{
+  "step_index": 1765,
+  "source": "MODEL",
+  "type": "PLANNER_RESPONSE",
+  "status": "DONE",
+  "created_at": "2026-07-10T17:01:23Z",
+  "tool_calls": [
+    {
+      "name": "view_file",
+      "args": {
+        "AbsolutePath": "\"c:\\\\Users\\\\nihar\\\\Downloads\\\\jatayu-complete\\\\jatayu\\\\frontend\\\\src\\\\views\\\\TrekDetailView.vue\"",
+        "EndLine": "350",
+        "StartLine": "201",
+        "toolAction": "\"Viewing TrekDetailView.vue booking section and reviews form\"",
+        "toolSummary": "\"View file\""
+      }
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+Created At: 2026-07-10T17:14:48Z
+Completed At: 2026-07-10T17:14:49Z
+File Path: `file:///c:/Users/nihar/Downloads/jatayu-complete/jatayu/frontend/src/views/TrekDetailView.vue`
+Total Lines: 1356
+Total Bytes: 44618
+Showing lines 61 to 120
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+61:           </div>
+62:         </div>
+63:       </div>
+64: 
+65:       <!-- Left-aligned Itinerary Timeline -->
+66:       <div v-if="parsedItinerary.length" class="section mt-4">
+67:         <div class="sec-head">Day-by-Day Itinerary</div>
+68:         <div class="itinerary-timeline">
+69:           <div v-for="(day, index) in parsedItinerary" :key="index" class="itinerary-node">
+70:             <div class="node-left">
+71:               <div class="node-day">{{ day.day }}</div>
+72:             </div>
+73:             <div class="node-connector">
+74:               <div class="node-dot">🪔</div>
+75:               <div class="node-line" v-if="index < parsedItinerary.length - 1"></div>
+76:             </div>
+77:             <div class="node-content">
+78:               <div class="node-title">{{ day.title }}</div>
+79:               <div class="node-details" v-if="day.dist || day.alt">
+80:                 <span v-if="day.dist" class="node-pill">📏 {{ day.dist }}</span>
+81:                 <span v-if="day.alt" class="node-pill">⛰️ Max Altitude: {{ day.alt }}</span>
+82:               </div>
+83:             </div>
+84:           </div>
+85:         </div>
+86:       </div>
+87: 
+88:       <!-- Interactive Culture Hub Button & Section Switcher -->
+89:       <div class="culture-explorer-panel mt-4">
+90:         <div class="explorer-banner">
+91:           <div class="banner-content">
+92:             <h4>🌿 Local Heritage & Food Trails</h4>
+93:             <p>Discover the traditional dishes, local tribe cultures, and eateries near {{ trek.name }}.</p>
+94:           </div>
+95:           <div class="explorer-actions">
+96:             <button class="btn-ghost" :class="{ active: activeTab === 'food' }" @click="activeTab = activeTab === 'food' ? null : 'food'">
+97:               🍲 Local Food
+98:             </button>
+99:             <button class="btn-ghost" :class="{ active: activeTab === 'culture' }" @click="activeTab = activeTab === 'culture' ? null : 'culture'">
+100:               🌸 Culture & Festivals
+101:             </button>
+102:             <button class="btn-ghost" :class="{ active: activeTab === 'eat' }" @click="activeTab = activeTab === 'eat' ? null : 'eat'">
+103:               🏡 Where to Eat
+104:             </button>
+105:           </div>
+106:         </div>
+107: 
+108:         <div v-if="activeTab" class="explorer-tab-content mt-3">
+109:           <!-- Local Food Tab -->
+110:           <div v-if="activeTab === 'food'">
+111:             <div v-if="localFood.length" class="food-scroll">
+112:               <div v-for="f in localFood" :key="f.id" class="food-card">
+113:                 <img v-if="f.photo_url" class="food-img" :src="f.photo_url" :alt="f.name" />
+114:                 <div v-else class="food-img-placeholder">🍽</div>
+115:                 <div class="food-body">
+116:                   <div class="food-name">{{ f.name }} <span v-if="f.hindi_name" style="color:rgba(255,255,255,.4);font-weight:400">{{ f.hindi_name }}</span></div>
+117:                   <div class="food-desc">{{ f.description }}</div>
+118:                   <span class="food-tag">{{ f.is_vegetarian ? 'Veg' : 'Non-veg' }} · {{ f.category }}</span>
+119:                 </div>
+120:               </div>
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

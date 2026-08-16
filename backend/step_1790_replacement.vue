@@ -1,0 +1,1 @@
+"const acceptPledge = ref(false)\nconst activeTab = ref(null)\n\nconst selectedAgency = computed(() => {\n  if (!selectedAgencyId.value) return null\n  return agencies.value.find(a => a.id === selectedAgencyId.value)\n})"

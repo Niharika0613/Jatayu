@@ -25,7 +25,8 @@ from app.models import User, Trek, LocalFood, Restaurant, TravelAgency, Booking,
 
 
 def seed():
-    app = create_app("development")
+    env = os.environ.get("FLASK_ENV", "development")
+    app = create_app(env)
     with app.app_context():
         # Drop all tables to cleanly wipe data despite database locks
         db.reflect()

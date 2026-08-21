@@ -1,5 +1,9 @@
 # Jatayu (जटायु) - Trekking Management Application V2
 
+### Live Links
+- **Live Website**: [https://jatayu-2.onrender.com](https://jatayu-2.onrender.com)
+- **Production API**: [https://jatayu-backend.onrender.com](https://jatayu-backend.onrender.com)
+
 > India's trekking soul. A culture-first trekking management platform built for Modern Application Development II (IIT Madras BS Degree).
 
 Jatayu satisfies the full MAD-II Trekking Management Application V2 specification while layering in India-specific cultural depth: mythology, regional food trails, local restaurant partners, and travel agency integrations.
